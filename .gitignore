@@ -1,0 +1,70 @@
+# System files
+.DS_Store
+node_modules/
+dist/
+
+# temp file
+*.log
+*.cache
+*.diff
+*.patch
+*.tmp
+.cache/
+
+# Editor
+.vscode/
+.idea/
+*.iml
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# umi
+.umi
+.umi-production
+.umi-test
+
+# build
+build
+out/
+cmake-build-debug/
+
+# screenshot
+screenshot
+.firebase
+.eslintcache
+
+# maven ignore
+target/
+.mvn/
+
+# package fiel
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# test script
+test.sh
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log
+yarn-debug.log*
+yarn-error.log*
+/src/utils/request-temp.js
+_roadhog-api-doc
+/coverage
+yarn.lock
+package-lock.json
+*bak
+.history
+functions/*
+.temp/**

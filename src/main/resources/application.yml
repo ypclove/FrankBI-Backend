@@ -1,0 +1,87 @@
+server:
+  address: ********
+  port: ********
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        max-age: ********
+spring:
+  application:
+    name: ********
+  profiles:
+    active: dev # 默认 dev 环境
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  # session 配置
+  session:
+    # store-type: redis
+    timeout: ********
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ********
+    username: ********
+    password: ********
+  redis:
+    database: 1
+    host: ********
+    port: ********
+    timeout: 5000
+    # password: ********
+  servlet:
+    multipart:
+      max-file-size: 1MB  # 文件上传大小限制
+  rabbitmq:
+    host: ********
+    password: ********
+    username: ********
+    port: ********
+    virtual-host: /
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+# 阿里云对象存储
+aliyun:
+  oss:
+    file:
+      endpoint: ********
+      keyid: ********
+      keysecret: ********
+      bucketname: ********
+# 要使用的模型ID
+ai:
+  model:
+    model-id: ********
+# 鱼聪明 SDK
+yuapi:
+  client:
+    access-key: ********
+    secret-key: ********
+# 支付宝沙箱
+pay:
+  qrcodeurl: ********
+  alipay:
+    # 应用 ID（APPID）
+    app-id: ********
+    # 商户 PID
+    seller-id: ********
+    # 支付宝网关
+    gateway-url: ********
+    # 商户私钥
+    merchant-private-key: ********
+    # 支付宝公钥，查看地址：https://openhome.alipay.com/platform/keyManage.htm 对应 APPID 下的支付宝公钥
+    alipay-public-key: ********
+    # 接口内容加密秘钥，对称秘钥
+    content-key: ********
+    # 页面跳转同步通知页面路径
+    return-url: ********
+    # 服务器异步通知页面路径，需 http:// 格式的完整路径，不能加 ?id=123 这类自定义参数，必须外网可以正常访问
+    # 注意：每次重新启动 ngrok，都需要根据实际情况修改这个配置
+    notify-url: ********

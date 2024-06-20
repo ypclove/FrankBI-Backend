@@ -1,0 +1,58 @@
+server:
+  port: ********
+  servlet:
+    context-path: /api
+    session:
+      cookie:
+        domain: ********
+        same-site: lax
+        secure: false
+spring:
+  # DataSource Config
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ********
+    username: ********
+    password: ********
+  session:
+    timeout: # session 失效时间 30 天
+    store-type: none
+  # redis配置
+  redis:
+    port: ********
+    host: ********
+    database: ********
+    password: ********
+  # rabbitmq 信息
+  rabbitmq:
+    host: ********
+    password: ********
+    username: ********
+    port: ********
+    listener:
+      direct:
+        acknowledge-mode: manual
+mybatis-plus:
+  configuration:
+    # 生产环境关闭日志
+    log-impl: ''
+# 要使用的模型ID
+ai:
+  model:
+    model-id: ********
+# 阿里云对象存储
+aliyun:
+  oss:
+    file:
+      endpoint: oss-cn-guangzhou.aliyuncs.com
+      keyid: ********
+      keysecret: ********
+      bucketname: ********
+# 鱼聪明SDK
+yuapi:
+  client:
+    access-key: ********
+    secret-key: ********
+# 支付宝沙箱
+pay:
+  qrcodeurl: ********
