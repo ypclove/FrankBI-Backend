@@ -27,7 +27,7 @@ spring:
     database: 1
     host: ********
     port: ********
-    timeout: 5000
+    timeout: ********
     # password: ********
   servlet:
     multipart:
@@ -36,7 +36,7 @@ spring:
     host: ********
     password: ********
     username: ********
-    port: ********
+    port: 5672
     virtual-host: /
 mybatis-plus:
   configuration:

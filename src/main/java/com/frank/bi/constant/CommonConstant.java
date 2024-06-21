@@ -5,15 +5,15 @@ package com.frank.bi.constant;
  *
  * @author Frank
  */
-public interface CommonConstant {
+public class CommonConstant {
 
     /**
      * 升序
      */
-    String SORT_ORDER_ASC = "ascend";
+    public static final String SORT_ORDER_ASC = "ascend";
 
     /**
      * 降序
      */
-    String SORT_ORDER_DESC = " descend";
+    public static final String SORT_ORDER_DESC = " descend";
 }

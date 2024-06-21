@@ -7,15 +7,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.request.AlipayTradePagePayRequest;
+import com.alipay.api.AlipayConstants;
 import com.alipay.api.request.AlipayTradeQueryRequest;
-import com.alipay.api.response.AlipayTradePagePayResponse;
+import com.alipay.api.request.AlipayTradeWapPayRequest;
 import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.response.AlipayTradeWapPayResponse;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.frank.bi.common.BaseResponse;
 import com.frank.bi.common.ErrorCode;
 import com.frank.bi.common.ResultUtils;
+import com.frank.bi.config.AlipayClientConfig;
 import com.frank.bi.exception.BusinessException;
 import com.frank.bi.model.entity.AiFrequency;
 import com.frank.bi.model.entity.AiFrequencyOrder;
@@ -29,6 +30,7 @@ import com.frank.bi.service.AlipayInfoService;
 import com.frank.bi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +40,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -52,7 +56,10 @@ public class AliPayController {
     private UserService userService;
 
     @Resource
-    private AlipayClient alipayClient;
+    private AlipayClientConfig alipayClientConfig;
+
+    @Resource
+    private Environment config;
 
     @Resource
     private AiFrequencyOrderService aiFrequencyOrderService;
@@ -70,17 +77,17 @@ public class AliPayController {
      */
     @Transactional
     @GetMapping("/pay")
-    public void pay(String alipayAccountNo) {
+    public void pay(String alipayAccountNo, HttpServletResponse response) {
         try {
             if (StringUtils.isBlank(alipayAccountNo)) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR);
             }
             AlipayInfo alipayInfo = getTotalAmount(alipayAccountNo);
-            AlipayTradePagePayRequest request = new AlipayTradePagePayRequest();
+            AlipayTradeWapPayRequest request = new AlipayTradeWapPayRequest();
 
             // 配置需要的公用请求参数：异步通知的地址
             // request.setNotifyUrl("");
-            request.setReturnUrl("http://localhost:8000/result/success");
+            request.setReturnUrl(config.getProperty("return-url"));
 
             // 组装当前业务方法的请求参数
             JSONObject bizContent = new JSONObject();
@@ -91,17 +98,17 @@ public class AliPayController {
             request.setBizContent(bizContent.toString());
 
             // 执行请求，调用支付宝接口
-            AlipayTradePagePayResponse response = alipayClient.pageExecute(request);
-            if (response.isSuccess()) {
-                log.info("调用成功，返回结果===>{}", response.getBody());
-                // response.setContentType("text/html;charset=" + AliPayConstant.CHARSET);
-                // String form = response.getBody();
-                // response.getWriter().write(form);
-                // response.getWriter().flush();
+            AlipayTradeWapPayResponse aliPayResponse = alipayClientConfig.alipayClient().pageExecute(request);
+            if (aliPayResponse.isSuccess()) {
+                log.info("调用成功，返回结果===>{}", aliPayResponse.getBody());
+                response.setContentType("text/html;charset=" + AlipayConstants.CHARSET_UTF8);
+                String form = aliPayResponse.getBody();
+                response.getWriter().write(form);
+                response.getWriter().flush();
             } else {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, response.getMsg());
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, aliPayResponse.getMsg());
             }
-        } catch (AlipayApiException e) {
+        } catch (AlipayApiException | IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -126,7 +133,7 @@ public class AliPayController {
         long alipayAccountNo = alipayInfoService.getPayNo(orderId, loginUser.getId());
         // TODO：将 URL 放在 application.yml 中或者常量类 AliPayConstant 中
         // String url = String.format("http://xxxxxx:8103/api/alipay/pay?alipayAccountNo=%s", alipayAccountNo);
-        String url = String.format("http://192.168.11.219:8103/api/alipay/pay?alipayAccountNo=%s", alipayAccountNo);
+        String url = String.format("http://10.129.122.223:8801/api/alipay/pay?alipayAccountNo=%s", alipayAccountNo);
         String generateQrCode = QrCodeUtil.generateAsBase64(url, new QrConfig(400, 400), "png");
         AlipayInfoVO alipayInfoVO = new AlipayInfoVO();
         alipayInfoVO.setAlipayAccountNo(String.valueOf(alipayAccountNo));
@@ -155,7 +162,7 @@ public class AliPayController {
         bizContent.put("out_trade_no", alipayAccountNo);
 
         request.setBizContent(bizContent.toString());
-        AlipayTradeQueryResponse response = alipayClient.execute(request);
+        AlipayTradeQueryResponse response = alipayClientConfig.alipayClient().execute(request);
         if (!response.isSuccess()) {
             log.error("查询交易结果失败");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "调用失败");
@@ -214,15 +221,15 @@ public class AliPayController {
         try {
             bizContent.put("out_trade_no", alipayAccountNo);
         } catch (JSONException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         // bizContent.put("trade_no", "2014112611001004680073956707");
         request.setBizContent(bizContent.toString());
         AlipayTradeQueryResponse response = null;
         try {
-            response = alipayClient.execute(request);
+            response = alipayClientConfig.alipayClient().execute(request);
         } catch (AlipayApiException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
         assert response != null;
         if (response.isSuccess()) {
