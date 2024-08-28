@@ -12,6 +12,7 @@
     <groupId>com.frank</groupId>
     <artifactId>FrankBI-Backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>FrankBI-Backend</name>
     <description>FrankBI-Backend Project for Spring Boot</description>
 
